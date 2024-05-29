@@ -1,4 +1,4 @@
-use bevy_ecs::change_detection::{DetectChangesMut, MutUntyped};
+use bevy_ecs::change_detection::{ DetectChangesMut, MutUntyped };
 use bevy_ecs::ptr::PtrMut;
 
 // workaround for https://github.com/bevyengine/bevy/pull/6430
@@ -13,7 +13,7 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
 
 pub mod guess_entity_name {
     use bevy_core::Name;
-    use bevy_ecs::{archetype::Archetype, prelude::*, world::unsafe_world_cell::UnsafeWorldCell};
+    use bevy_ecs::{ archetype::Archetype, prelude::*, world::unsafe_world_cell::UnsafeWorldCell };
 
     use crate::restricted_world_view::RestrictedWorldView;
 
@@ -28,7 +28,7 @@ pub mod guess_entity_name {
                 guess_entity_name_inner(
                     world.as_unsafe_world_cell_readonly(),
                     entity,
-                    entity_ref.archetype(),
+                    entity_ref.archetype()
                 )
             }
             None => format!("Entity {} (inexistent)", entity.index()),
@@ -37,13 +37,13 @@ pub mod guess_entity_name {
 
     pub(crate) fn guess_entity_name_restricted(
         world: &mut RestrictedWorldView<'_>,
-        entity: Entity,
+        entity: Entity
     ) -> String {
         match world.world().get_entity(entity) {
             Some(cell) => {
                 if world.allows_access_to_component((entity, std::any::TypeId::of::<Name>())) {
                     // SAFETY: we have access and don't keep reference
-                    if let Some(name) = unsafe { cell.get::<Name>() } {
+                    if let Some(name) = (unsafe { cell.get::<Name>() }) {
                         return format!("{} ({:?})", name.as_str(), entity);
                     }
                 }
@@ -56,18 +56,15 @@ pub mod guess_entity_name {
     fn guess_entity_name_inner(
         world: UnsafeWorldCell<'_>,
         entity: Entity,
-        archetype: &Archetype,
+        archetype: &Archetype
     ) -> String {
         #[rustfmt::skip]
         let associations = &[
             ("bevy_window::window::PrimaryWindow", "Primary Window"),
             ("bevy_core_pipeline::core_3d::camera_3d::Camera3d", "Camera3d"),
             ("bevy_core_pipeline::core_2d::camera_2d::Camera2d", "Camera2d"),
-            ("bevy_pbr::light::PointLight", "PointLight"),
-            ("bevy_pbr::light::DirectionalLight", "DirectionalLight"),
             ("bevy_text::text::Text", "Text"),
             ("bevy_ui::ui_node::Node", "Node"),
-            ("bevy_asset::handle::Handle<bevy_pbr::pbr_material::StandardMaterial>", "Pbr Mesh"),
             ("bevy_window::window::Window", "Window"),
         ];
 
@@ -77,9 +74,10 @@ pub mod guess_entity_name {
         });
 
         for component_type in type_names {
-            if let Some(name) = associations
-                .iter()
-                .find_map(|&(name, matches)| (component_type == name).then_some(matches))
+            if
+                let Some(name) = associations
+                    .iter()
+                    .find_map(|&(name, matches)| (component_type == name).then_some(matches))
             {
                 return format!("{name} ({entity:?})");
             }
