@@ -6,29 +6,34 @@ use crate::{
     InspectorOptions,
 };
 
-#[allow(dead_code)]
 fn insert_options_struct<T: 'static>(
     type_registry: &mut TypeRegistry,
     fields: &[(&'static str, &dyn TypeData)]
 ) {
-    let Some(registration) = type_registry.get_mut(std::any::TypeId::of::<T>()) else {
+    if let Some(registration) = type_registry.get_mut(std::any::TypeId::of::<T>()) {
+        if registration.data::<ReflectInspectorOptions>().is_none() {
+            let mut options = InspectorOptions::new();
+            for (field, data) in fields {
+                let info = match registration.type_info() {
+                    TypeInfo::Struct(info) => info,
+                    _ => unreachable!(),
+                };
+                if let Some(field_index) = info.index_of(field) {
+                    options.insert_boxed(
+                        Target::Field(field_index),
+                        TypeData::clone_type_data(*data)
+                    );
+                } else {
+                    bevy_log::warn!("Field index not found: {}", field);
+                }
+            }
+            registration.insert(ReflectInspectorOptions(options));
+        }
+    } else {
         bevy_log::warn!(
             "Attempting to set default inspector options for {}, but it wasn't registered in the type registry.",
             std::any::type_name::<T>()
         );
-        return;
-    };
-    if registration.data::<ReflectInspectorOptions>().is_none() {
-        let mut options = InspectorOptions::new();
-        for (field, data) in fields {
-            let info = match registration.type_info() {
-                TypeInfo::Struct(info) => info,
-                _ => unreachable!(),
-            };
-            let field_index = info.index_of(field).unwrap();
-            options.insert_boxed(Target::Field(field_index), TypeData::clone_type_data(*data));
-        }
-        registration.insert(ReflectInspectorOptions(options));
     }
 }
 
@@ -36,35 +41,49 @@ fn insert_options_enum<T: 'static>(
     type_registry: &mut TypeRegistry,
     fields: &[(&'static str, &'static str, &dyn TypeData)]
 ) {
-    let Some(registration) = type_registry.get_mut(std::any::TypeId::of::<T>()) else {
+    if let Some(registration) = type_registry.get_mut(std::any::TypeId::of::<T>()) {
+        if registration.data::<ReflectInspectorOptions>().is_none() {
+            let mut options = InspectorOptions::new();
+            for (variant, field, data) in fields {
+                let info = match registration.type_info() {
+                    TypeInfo::Enum(info) => info,
+                    _ => unreachable!(),
+                };
+                if let Some(variant_index) = info.index_of(variant) {
+                    let field_index = match info.variant_at(variant_index) {
+                        Some(bevy_reflect::VariantInfo::Struct(strukt)) => {
+                            strukt.index_of(field)
+                        }
+                        Some(bevy_reflect::VariantInfo::Tuple(_)) => { field.parse().ok() }
+                        Some(bevy_reflect::VariantInfo::Unit(_)) => unreachable!(),
+                        None => {
+                            bevy_log::warn!("Variant not found: {}", variant);
+                            continue;
+                        }
+                    };
+
+                    if let Some(field_index) = field_index {
+                        options.insert_boxed(
+                            Target::VariantField {
+                                variant_index,
+                                field_index,
+                            },
+                            TypeData::clone_type_data(*data)
+                        );
+                    } else {
+                        bevy_log::warn!("Field index not found for variant: {}", variant);
+                    }
+                } else {
+                    bevy_log::warn!("Variant index not found: {}", variant);
+                }
+            }
+            registration.insert(ReflectInspectorOptions(options));
+        }
+    } else {
         bevy_log::warn!(
             "Attempting to set default inspector options for {}, but it wasn't registered in the type registry.",
             std::any::type_name::<T>()
         );
-        return;
-    };
-    if registration.data::<ReflectInspectorOptions>().is_none() {
-        let mut options = InspectorOptions::new();
-        for (variant, field, data) in fields {
-            let info = match registration.type_info() {
-                TypeInfo::Enum(info) => info,
-                _ => unreachable!(),
-            };
-            let variant_index = info.index_of(variant).unwrap();
-            let field_index = match info.variant_at(variant_index).unwrap() {
-                bevy_reflect::VariantInfo::Struct(strukt) => strukt.index_of(field).unwrap(),
-                bevy_reflect::VariantInfo::Tuple(_) => field.parse().unwrap(),
-                bevy_reflect::VariantInfo::Unit(_) => unreachable!(),
-            };
-            options.insert_boxed(
-                Target::VariantField {
-                    variant_index,
-                    field_index,
-                },
-                TypeData::clone_type_data(*data)
-            );
-        }
-        registration.insert(ReflectInspectorOptions(options));
     }
 }
 
