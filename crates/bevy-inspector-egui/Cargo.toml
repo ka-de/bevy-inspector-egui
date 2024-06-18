@@ -9,10 +9,10 @@ description = "Inspector plugin for the bevy game engine"
 documentation = "https://docs.rs/bevy-inspector-egui"
 keywords = ["bevy", "inspector", "egui", "editor", "reflect"]
 categories = [
-    "game-development",
-    "gui",
-    "visualization",
-    "development-tools::procedural-macro-helpers",
+  "game-development",
+  "gui",
+  "visualization",
+  "development-tools::procedural-macro-helpers",
 ]
 
 [features]
@@ -21,23 +21,27 @@ highlight_changes = []
 
 [dependencies]
 bevy-inspector-egui-derive = { version = "0.24.0", path = "../bevy-inspector-egui-derive" }
-bevy_app = { version = "0.13.2" }
-bevy_asset = { version = "0.13.2" }
-bevy_core = { version = "0.13.2" }
-bevy_ecs = { version = "0.13.2" }
-bevy_hierarchy = { version = "0.13.2" }
-bevy_log = { version = "0.13.2" }
-bevy_math = { version = "0.13.2" }
-bevy_reflect = { version = "0.13.2" }
-bevy_time = { version = "0.13.2" }
-bevy_utils = { version = "0.13.2" }
-bevy_window = { version = "0.13.2" }
-bevy_core_pipeline = { version = "0.13.2" }
-bevy_render = { version = "0.13.2" }
-egui = "0.27"
-bevy_egui = { git = "https://github.com/ka-de/bevy_egui" }
+bevy_app = { git = "https://github.com/bevyengine/bevy" }
+bevy_asset = { git = "https://github.com/bevyengine/bevy" }
+bevy_color = { git = "https://github.com/bevyengine/bevy" }
+bevy_core = { git = "https://github.com/bevyengine/bevy" }
+bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
+bevy_hierarchy = { git = "https://github.com/bevyengine/bevy" }
+bevy_log = { git = "https://github.com/bevyengine/bevy" }
+bevy_math = { git = "https://github.com/bevyengine/bevy" }
+bevy_reflect = { git = "https://github.com/bevyengine/bevy" }
+bevy_state = { git = "https://github.com/bevyengine/bevy" }
+bevy_time = { git = "https://github.com/bevyengine/bevy" }
+bevy_utils = { git = "https://github.com/bevyengine/bevy" }
+bevy_window = { git = "https://github.com/bevyengine/bevy" }
+bevy_core_pipeline = { git = "https://github.com/bevyengine/bevy" }
+bevy_pbr = { git = "https://github.com/bevyengine/bevy", optional = true }
+bevy_render = { git = "https://github.com/bevyengine/bevy" }
 
-image = { version = "0.25.1", default-features = false }
+egui = "0.27"
+bevy_egui = { git = "https://github.com/ka-de/bevy_egui", branch = "0.14" }
+bytemuck = { git = "https://github.com/ka-de/bytemuck" }
+image = { version = "0.24", default-features = false }
 once_cell = "1.16"
 pretty-type-name = "1.0"
 smallvec = "1.10"
@@ -47,16 +51,16 @@ egui-dropdown = "0.9.0"
 fuzzy-matcher = "0.3.7"
 
 [dev-dependencies]
-bevy = { version = "0.13.2", default-features = false, features = [
-    "x11",
-    "bevy_winit",
-    "bevy_sprite",
-    "bevy_core_pipeline",
-    "animation",
-    "png",
-    "zstd",
-    "tonemapping_luts",
-    "ktx2",
+bevy = { git = "https://github.com/bevyengine/bevy", default-features = false, features = [
+  "x11",
+  "bevy_winit",
+  "bevy_sprite",
+  "bevy_core_pipeline",
+  "animation",
+  "png",
+  "zstd",
+  "tonemapping_luts",
+  "ktx2",
 ] }
 egui_dock = "0.12"
 transform-gizmo-egui = "0.1"

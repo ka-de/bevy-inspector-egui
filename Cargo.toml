@@ -1,3 +1,6 @@
 [workspace]
 resolver = "2"
 members = ["crates/*"]
+
+[patch.crates-io]
+bevy_egui = { git = "https://github.com/ka-de/bevy_egui", branch = "0.14" }
