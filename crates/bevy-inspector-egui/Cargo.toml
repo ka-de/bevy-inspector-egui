@@ -41,9 +41,7 @@ bevy_core_pipeline = { version = "0.14", optional = true }
 bevy_pbr = { version = "0.14", optional = true }
 
 egui = "0.28"
-bevy_egui = { version = "0.28", default-features = false, features = [
-    "manage_clipboard", "open_url"
-] }
+bevy_egui = { git = "https://github.com/Friz64/bevy_egui", branch = "bevy-0.14", optional = true }
 
 bytemuck = "1.16.0"
 image = { version = "0.24", default-features = false }
